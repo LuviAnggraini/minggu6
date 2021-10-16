@@ -15,6 +15,7 @@
                     @endif
 
                     <a href="/students/create" class="btn btn-primary">Add Data</a> <br><br>
+                    
                     <table class="table table-responsive table-striped">
                         <thead>
                             <tr>
