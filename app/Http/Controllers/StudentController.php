@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Kelas;
 use PDF;
+
 class StudentController extends Controller
 {
     /**
@@ -35,9 +36,7 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $student = new Student;
-        if($request->file('photo')){ 
-            $image_name = $request->file('photo')->store('images','public'); 
-        }
+        if($request->file('photo')){ $image_name = $request->file('photo')->store('images','public'); }
         $student->nim = $request->nim;
         $student->name = $request->name;
         $student->department = $request->department;
@@ -47,7 +46,6 @@ class StudentController extends Controller
         $kelas->id = $request->Kelas;
         $student->kelas()->associate($kelas);
         $student->save();
-        
         // if true, redirect to index
         return redirect()->route('students.index')
         ->with('success', 'Add data success!');
@@ -60,13 +58,9 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        $student = Student::find($id);
-        return view('students.view', ['student' => $student]);
-        $student = Student::find($id);
-        return view('students.view', ['student'=>$student]);
+    $student = Student::find($id);
+    return view('students.view',['student'=>$student]);
     }
-
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -88,22 +82,20 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        {
-            $student = Student::find($id);
-            $student->nim = $request->nim;
-            $student->name = $request->name;
-            $student->department = $request->department;
-            $student->phone_number = $request->phone_number;
-            if($student->photo && file_exists(storage_path('app/public/' . $student->photo))) { 
-                \Storage::delete('public/'.$student->photo); 
-            } 
-            $image_name = $request->file('photo')->store('images', 'public'); $student->photo = $image_name;
-            $kelas = new Kelas;
-            $kelas->id = $request->Kelas;
-            $student->kelas()->associate($kelas);
-            $student->save();
-            return redirect()->route('students.index');
-        }
+        $student = Student::find($id);
+        $student->nim = $request->nim;
+        $student->name = $request->name;
+        $student->department = $request->department;
+        $student->phone_number = $request->phone_number;
+        if($student->photo && file_exists(storage_path('app/public/' . $student->photo))) 
+        { \Storage::delete('public/'.$student->photo); 
+        } $image_name = $request->file('photo')->store('images', 'public'); 
+        $student->photo = $image_name;
+        $kelas = new Kelas;
+        $kelas->id = $request->Kelas;
+        $student->kelas()->associate($kelas);
+        $student->save();
+        return redirect()->route('students.index');
     }
     /**
      * Remove the specified resource from storage.
@@ -120,16 +112,18 @@ class StudentController extends Controller
     public function search(Request $request)
     {
         $keyword = $request->search;
-        $student = Student::where('name', 'like', "%" . $keyword . "%")->paginate(5);
+        $student = student::where('name', 'like', "%" . $keyword . "%")->paginate(5);
         return view('students.index', compact('student'))->with('i', (request()->input('page', 1) - 1) * 5);
     }
-    public function nilai($id)
+    public function menu_nilai($id)
     {
         $student = Student::find($id);
         return view('students.nilai', ['student'=>$student]);
     }
     public function report($id)
     { 
-        $student = Student::find($id); $pdf = PDF::loadview('students.report',['student'=>$student]); return $pdf->stream(); 
+        $student = Student::find($id); 
+        $pdf = PDF::loadview('students.report',['student'=>$student]); 
+        return $pdf->stream(); 
     }
 }
